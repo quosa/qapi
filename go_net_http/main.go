@@ -6,21 +6,23 @@ import (
 )
 
 func main() {
-	var qapi_server http.Server
+	var mux = http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Welcome to QAPI!")
+	})
 
 	fmt.Println("QAPI Server is starting...")
 
-	qapi_server.Addr = ":8080"
-	qapi_server.ListenAndServe()
+	http.ListenAndServe(":8080", mux)
 }
 
 /*
 curl -i http://localhost:8080/
-HTTP/1.1 404 Not Found
+HTTP/1.1 200 OK
+Date: Mon, 13 May 2024 17:25:21 GMT
+Content-Length: 16
 Content-Type: text/plain; charset=utf-8
-X-Content-Type-Options: nosniff
-Date: Mon, 13 May 2024 17:16:04 GMT
-Content-Length: 19
 
-404 page not found
+Welcome to QAPI!
 */
