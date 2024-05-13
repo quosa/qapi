@@ -39,9 +39,7 @@ func (h *v1APIHandler) getSingleTask(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", h.tasks[i])
 }
-
-func main() {
-	var tasks = []Task{}
+func GetRoutes(tasks []Task) *http.ServeMux {
 	var mux = http.NewServeMux()
 	var v1 = &v1APIHandler{tasks: tasks}
 
@@ -55,60 +53,18 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "Welcome to QAPI!")
 	})
-
+	return mux
+}
+func main() {
+	var tasks = []Task{}
+	mux := GetRoutes(tasks)
 	fmt.Println("QAPI Server is starting...")
 
 	http.ListenAndServe(":8080", mux)
 }
 
 /*
-curl -i http://localhost:8080/v1/tasks
-HTTP/1.1 200 OK
-Date: Mon, 13 May 2024 18:12:08 GMT
-Content-Length: 2
-Content-Type: text/plain; charset=utf-8
-
-[]
-
-curl -i -X POST http://localhost:8080/v1/tasks
-HTTP/1.1 200 OK
-Date: Mon, 13 May 2024 18:12:18 GMT
-Content-Length: 10
-Content-Type: text/plain; charset=utf-8
-
-{New task}
-
-curl -i http://localhost:8080/v1/tasks
-HTTP/1.1 200 OK
-Date: Mon, 13 May 2024 18:12:29 GMT
-Content-Length: 12
-Content-Type: text/plain; charset=utf-8
-
-[{New task}]
-
-curl -i http://localhost:8080/v1/tasks/0
-HTTP/1.1 200 OK
-Date: Mon, 13 May 2024 18:23:25 GMT
-Content-Length: 10
-Content-Type: text/plain; charset=utf-8
-
-{New task}
-
-curl -i http://localhost:8080/v1/tasks/1
-HTTP/1.1 404 Not Found
-Date: Mon, 13 May 2024 18:23:30 GMT
-Content-Length: 14
-Content-Type: text/plain; charset=utf-8
-
-Task not found
-
-curl -i http://localhost:8080/v1/tasks/asf
-HTTP/1.1 400 Bad Request
-Date: Mon, 13 May 2024 18:24:28 GMT
-Content-Length: 15
-Content-Type: text/plain; charset=utf-8
-
-Invalid task ID
+See unit tests in main_test.go for v1 tests.
 
 curl -i http://localhost:8080/
 HTTP/1.1 200 OK
