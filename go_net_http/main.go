@@ -62,24 +62,3 @@ func main() {
 
 	http.ListenAndServe(":8080", mux)
 }
-
-/*
-See unit tests in main_test.go for v1 tests.
-
-curl -i http://localhost:8080/
-HTTP/1.1 200 OK
-Date: Mon, 13 May 2024 18:12:36 GMT
-Content-Length: 16
-Content-Type: text/plain; charset=utf-8
-
-Welcome to QAPI!
-
-curl -i http://localhost:8080/gibberish
-HTTP/1.1 404 Not Found
-Content-Type: text/plain; charset=utf-8
-X-Content-Type-Options: nosniff
-Date: Mon, 13 May 2024 18:12:47 GMT
-Content-Length: 19
-
-404 page not found
-*/
