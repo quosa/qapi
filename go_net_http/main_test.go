@@ -6,8 +6,7 @@ import (
 	"testing"
 )
 
-// Test GET /v1/tasks
-func TestV1GetAllTasks(t *testing.T) {
+func TestV1GetAllTasksEmpty(t *testing.T) {
 
 	var tasks = []Task{}
 	mux := GetRoutes(tasks)
@@ -44,74 +43,79 @@ func TestV1AddTask(t *testing.T) {
 	}
 }
 
-func TestV1GetSingleTask(t *testing.T) {
-	var tasks = []Task{{Description: "New task"}}
-	mux := GetRoutes(tasks)
-	rec := httptest.NewRecorder()
+func TestV1API(t *testing.T) {
+	tests := []struct {
+		name       string
+		path       string
+		wantStatus int
+		wantBody   string
+	}{
+		{
+			name:       "root gives 200",
+			path:       "/",
+			wantStatus: http.StatusOK,
+			wantBody:   "Welcome to QAPI!",
+		},
+		{
+			name:       "non-existing route gives 404",
+			path:       "/foo",
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:       "v1 api root gives 404",
+			path:       "/v1",
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:       "get all tasks gives 200",
+			path:       "/v1/tasks",
+			wantStatus: http.StatusOK,
+			wantBody:   "[{New task}]", // 1 item initialized in the list
+		},
+		{
+			name:       "get only task gives 200",
+			path:       "/v1/tasks/0",
+			wantStatus: http.StatusOK,
+			wantBody:   "{New task}", // 1 item initialized in the list
+		},
+		{
+			name:       "invalid task id gives 400",
+			path:       "/v1/tasks/ff3%293",
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "task id above bounds gives 404",
+			path:       "/v1/tasks/1", // 1 item initialized in the list
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:       "task id too big for int gives 400",
+			path:       "/v1/tasks/12345679012345678901234567890",
+			wantStatus: http.StatusBadRequest,
+		},
+		{
+			name:       "task id below bounds gives 404",
+			path:       "/v1/tasks/-1",
+			wantStatus: http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var tasks = []Task{{Description: "New task"}}
+			mux := GetRoutes(tasks)
+			rec := httptest.NewRecorder()
 
-	req, err := http.NewRequest("GET", "/v1/tasks/0", nil)
-	if err != nil {
-		t.Fatalf("could not create request: %v", err)
-	}
-	mux.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rec.Code)
-	}
-	if rec.Body.String() != "{New task}" {
-		t.Errorf("expected new task, got %s", rec.Body.String())
-	}
-}
-
-func TestV1GetAllTaskWithOneEntry(t *testing.T) {
-	var tasks = []Task{{Description: "New task"}}
-	mux := GetRoutes(tasks)
-	rec := httptest.NewRecorder()
-
-	req, err := http.NewRequest("GET", "/v1/tasks", nil)
-	if err != nil {
-		t.Fatalf("could not create request: %v", err)
-	}
-	mux.ServeHTTP(rec, req)
-	if rec.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rec.Code)
-	}
-	if rec.Body.String() != "[{New task}]" {
-		t.Errorf("expected new task, got %s", rec.Body.String())
-	}
-}
-
-func TestV1GetSingleTaskOutOfBounds(t *testing.T) {
-	var tasks = []Task{{Description: "New task"}}
-	mux := GetRoutes(tasks)
-	rec := httptest.NewRecorder()
-
-	req, err := http.NewRequest("GET", "/v1/tasks/1", nil)
-	if err != nil {
-		t.Fatalf("could not create request: %v", err)
-	}
-	mux.ServeHTTP(rec, req)
-	if rec.Code != http.StatusNotFound {
-		t.Errorf("expected status 404, got %d", rec.Code)
-	}
-	if rec.Body.String() != "Task not found" {
-		t.Errorf("expected 'Task not found', got %s", rec.Body.String())
-	}
-}
-
-func TestV1GetSingleTaskInvalidID(t *testing.T) {
-	var tasks = []Task{{Description: "New task"}}
-	mux := GetRoutes(tasks)
-	rec := httptest.NewRecorder()
-
-	req, err := http.NewRequest("GET", "/v1/tasks/foobar", nil)
-	if err != nil {
-		t.Fatalf("could not create request: %v", err)
-	}
-	mux.ServeHTTP(rec, req)
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("expected status 400, got %d", rec.Code)
-	}
-	if rec.Body.String() != "Invalid task ID" {
-		t.Errorf("expected 'Invalid task ID', got %s", rec.Body.String())
+			req, err := http.NewRequest("GET", tt.path, nil)
+			if err != nil {
+				t.Fatalf("could not create request: %v", err)
+			}
+			mux.ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("expected status %d, got %d", tt.wantStatus, rec.Code)
+			}
+			if tt.wantBody != "" && rec.Body.String() != tt.wantBody {
+				t.Errorf("expected '%s', got %s", tt.wantBody, rec.Body.String())
+			}
+		})
 	}
 }
