@@ -9,7 +9,7 @@ import (
 )
 
 var ErrorNotFound = errors.New("not found")
-var ErrorInvalidInout = errors.New("invalid input")
+var ErrorInvalidInput = errors.New("invalid input")
 
 // Bugs datastore interface that can be implemented in memory, (no)SQL, etc.
 type IBugService interface {
@@ -45,9 +45,6 @@ func (s *BugService) GetAllBugs() ([]Bug, error) {
 
 // in-memory implementation of IBugService :: GetBugByID()
 func (s *BugService) GetBugByID(id uint64) (Bug, error) {
-	if id <= 0 || id > s._counter.Load() {
-		return Bug{}, fmt.Errorf("bug with id %d not found, error: %w", id, ErrorNotFound)
-	}
 	for _, bug := range s.bugs {
 		if bug.ID == id {
 			return bug, nil

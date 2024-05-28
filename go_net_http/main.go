@@ -44,10 +44,16 @@ func (h *v1APIHandler) getSingleBug(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Invalid task ID")
 		return
 	}
+	if i < 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	bug, err := h.bugStorage.GetBugByID(uint64(i))
-	// TODO: handle not found error properly
 	if err != nil {
-		if errors.Is(err, bugs.ErrorNotFound) {
+		if errors.Is(err, bugs.ErrorInvalidInput) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		} else if errors.Is(err, bugs.ErrorNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}

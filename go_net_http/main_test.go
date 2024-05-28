@@ -101,7 +101,7 @@ func TestV1API(t *testing.T) {
 		{
 			name:       "bug id below bounds gives 404",
 			path:       "/v1/bugs/-1",
-			wantStatus: http.StatusNotFound,
+			wantStatus: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {

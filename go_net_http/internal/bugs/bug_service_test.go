@@ -148,3 +148,36 @@ func TestDoubleAddBug(t *testing.T) {
 		t.Errorf("CreateBug() should return different IDs, got %d and %d", newBug1.ID, newBug2.ID)
 	}
 }
+
+func TestGetNonexistingBug(t *testing.T) {
+	var bs bugs.IBugService
+	if bs = bugs.NewBugService(); bs == nil {
+		t.Error("NewBugService() should not return nil")
+	}
+	_, err := bs.GetBugByID(123)
+	if err == nil {
+		t.Error("GetBugByID() should return error for non-existing bug")
+	}
+}
+
+func TestUpdateNonexistingBug(t *testing.T) {
+	var bs bugs.IBugService
+	if bs = bugs.NewBugService(); bs == nil {
+		t.Error("NewBugService() should not return nil")
+	}
+	_, err := bs.UpdateBug(bugs.Bug{ID: 123})
+	if err == nil {
+		t.Error("GetBugByID() should return error for non-existing bug")
+	}
+}
+
+func TestDeleteNonexistingBug(t *testing.T) {
+	var bs bugs.IBugService
+	if bs = bugs.NewBugService(); bs == nil {
+		t.Error("NewBugService() should not return nil")
+	}
+	err := bs.DeleteBug(123)
+	if err == nil {
+		t.Error("GetBugByID() should return error for non-existing bug")
+	}
+}
