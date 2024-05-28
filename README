@@ -1,1 +1,23 @@
 Simple REST API service in Go
+
+go_net_http is a pure Go stdlib implementation
+
+# Simple Bug Tracker
+
+GET    /api/v1/bugs      - list all bugs (filtering)
+GET    /api/v1/bugs(:id) - list all bugs (filtering)
+POST   /api/v1/bugs      - create a new bug
+PUT    /api/v1/bugs/:id  - update a bug
+DELETE /api/v1/bugs/:id  - delete a bug
+
+Core Bug entity:
+
+{
+  "id": 1,
+  "title": "Bug 1",
+  "description": "Description of bug 1",
+  "status": "open",
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
+}
+
