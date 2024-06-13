@@ -35,7 +35,7 @@ type BugService struct {
 // NewBugService creates a new in-memory BugService
 // and returns it as IBugService
 func NewBugService() IBugService {
-	return &BugService{}
+	return &BugService{bugs: []Bug{}} // initialize to empty list
 }
 
 // in-memory implementation of IBugService :: GetAllBugs()
